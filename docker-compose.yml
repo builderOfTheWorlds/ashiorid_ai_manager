@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  # =================================================================
+  # Infrastructure
+  # =================================================================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ashiorid-postgres
+    environment:
+      POSTGRES_DB: ashiorid
+      POSTGRES_USER: ashiorid_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ashiorid_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ashiorid-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ashiorid-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =================================================================
+  # Monitoring
+  # =================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ashiorid-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./k8s/monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ashiorid-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # =================================================================
+  # Services
+  # =================================================================
+
+  llm-proxy:
+    build:
+      context: ./llm-proxy-service
+      dockerfile: Dockerfile
+    container_name: ashiorid-llm-proxy
+    ports:
+      - "8001:8001"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=human
+      - ENVIRONMENT=development
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./llm-proxy-service/src:/app/src
+      - ./llm-proxy-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+    restart: unless-stopped
+
+  # Uncomment when implementing other services
+  # lore-rag:
+  #   build: ./lore-rag-service
+  #   ports:
+  #     - "8002:8002"
+  #   environment:
+  #     - QDRANT_HOST=qdrant
+  #     - REDIS_HOST=redis
+  #   depends_on:
+  #     - qdrant
+  #     - redis
+
+  # character-agent:
+  #   build: ./character-agent-service
+  #   ports:
+  #     - "8003:8003"
+  #   environment:
+  #     - POSTGRES_HOST=postgres
+  #     - REDIS_HOST=redis
+  #   depends_on:
+  #     - postgres
+  #     - redis
+
+  # simulation-engine:
+  #   build: ./simulation-engine
+  #   ports:
+  #     - "8004:8004"
+  #   environment:
+  #     - POSTGRES_HOST=postgres
+  #     - REDIS_HOST=redis
+  #   depends_on:
+  #     - postgres
+  #     - redis
+
+  # ai-manager:
+  #   build: ./ai-manager-service
+  #   ports:
+  #     - "8005:8005"
+  #   environment:
+  #     - POSTGRES_HOST=postgres
+  #     - REDIS_HOST=redis
+  #   depends_on:
+  #     - postgres
+  #     - redis
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
