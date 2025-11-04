@@ -1,0 +1,2 @@
+This is a test file to validate repository access.
+Created by Claude AI Assistant.
