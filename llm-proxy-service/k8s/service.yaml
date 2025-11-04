@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-proxy
+  namespace: ashiorid
+  labels:
+    app: llm-proxy
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8001"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+    protocol: TCP
+    name: http
+  selector:
+    app: llm-proxy
