@@ -1,0 +1,119 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop, claude/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - llm-proxy-service
+          - lore-rag-service
+          - character-agent-service
+          - simulation-engine
+          - ai-manager-service
+        python-version: ["3.11"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles(format('{0}/requirements.txt', matrix.service)) }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies for ${{ matrix.service }}
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f ${{ matrix.service }}/requirements.txt ]; then
+          pip install -r ${{ matrix.service }}/requirements.txt
+        fi
+        pip install pytest pytest-cov pytest-asyncio httpx
+
+    - name: Run tests for ${{ matrix.service }}
+      env:
+        PYTHONPATH: ${{ github.workspace }}/${{ matrix.service }}
+      run: |
+        if [ -d "${{ matrix.service }}/tests" ]; then
+          cd ${{ matrix.service }}
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
+        else
+          echo "No tests found for ${{ matrix.service }}, skipping..."
+        fi
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ${{ matrix.service }}/coverage.xml
+        flags: ${{ matrix.service }}
+        name: ${{ matrix.service }}
+        fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort mypy
+
+    - name: Run black
+      run: |
+        black --check --diff .
+
+    - name: Run flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run isort
+      run: |
+        isort --check-only --diff .
+
+  shared-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pyyaml pydantic
+
+    - name: Run shared utilities tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
+        if [ -d "shared/tests" ]; then
+          pytest shared/tests/ -v --cov=shared --cov-report=xml
+        else
+          echo "No shared tests found, skipping..."
+        fi
