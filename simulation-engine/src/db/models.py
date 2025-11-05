@@ -22,7 +22,7 @@ class Agent(Base):
     health = Column(Float, default=1.0)
     age = Column(Integer, default=0)
     inventory = Column(JSON, default=list)
-    metadata = Column(JSON)
+    properties = Column(JSON)  # Renamed from 'metadata' (reserved by SQLAlchemy)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -38,5 +38,5 @@ class SimulationEvent(Base):
     agent_ids = Column(JSON)
     location_x = Column(Integer)
     location_y = Column(Integer)
-    metadata = Column(JSON)
+    properties = Column(JSON)  # Renamed from 'metadata' (reserved by SQLAlchemy)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

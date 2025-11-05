@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS agents (
     health FLOAT NOT NULL DEFAULT 1.0,
     age INTEGER NOT NULL DEFAULT 0,
     inventory JSONB DEFAULT '[]',
-    metadata JSONB DEFAULT '{}',
+    properties JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS simulation_events (
     description TEXT,
     location_x INTEGER,
     location_y INTEGER,
-    metadata JSONB DEFAULT '{}',
+    properties JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
