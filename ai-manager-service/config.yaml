@@ -1,0 +1,67 @@
+service:
+  name: "ai-manager"
+  port: 8005
+  host: "0.0.0.0"
+
+# Service dependencies
+services:
+  llm_proxy:
+    url: "http://llm-proxy:8001"
+    timeout: 30
+  lore_rag:
+    url: "http://lore-rag:8002"
+    timeout: 15
+  character_agent:
+    url: "http://character-agent:8003"
+    timeout: 20
+  simulation_engine:
+    url: "http://simulation-engine:8004"
+    timeout: 10
+
+# Redis configuration
+redis:
+  url: "redis://redis:6379/0"
+  simulation_events_channel: "simulation_events"
+  world_events_channel: "world_events"
+
+# World event generation
+world_events:
+  enabled: true
+  check_interval: 60  # seconds between event checks
+  min_agents_for_event: 10
+  event_probability: 0.1  # probability of event each check
+  event_types:
+    - natural_disaster
+    - resource_discovery
+    - faction_conflict
+    - mysterious_phenomenon
+    - technological_breakthrough
+
+# Orchestration settings
+orchestration:
+  default_provider: "ollama"
+  default_model: "llama3.2:3b"
+  temperature: 0.7
+  max_tokens: 2048
+
+  # Context building
+  max_lore_results: 5
+  lore_score_threshold: 0.7
+  max_conversation_history: 10
+
+# Locale-based processing
+locales:
+  default: "en-US"
+  supported:
+    - "en-US"
+    - "en-GB"
+    - "es-ES"
+    - "fr-FR"
+    - "de-DE"
+    - "ja-JP"
+    - "zh-CN"
+
+# Monitoring
+monitoring:
+  enable_metrics: true
+  metrics_port: 8005

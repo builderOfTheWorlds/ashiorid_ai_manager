@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-manager
+  namespace: ashiorid
+  labels:
+    app: ai-manager
+    service: ai-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-manager
+  template:
+    metadata:
+      labels:
+        app: ai-manager
+    spec:
+      containers:
+      - name: ai-manager
+        image: ghcr.io/builderoftheworlds/ashiorid-ai-manager:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8005
+          name: http
+          protocol: TCP
+        env:
+        - name: REDIS_URL
+          value: "redis://redis:6379/0"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: config
+        configMap:
+          name: ai-manager-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-manager
+  namespace: ashiorid
+  labels:
+    app: ai-manager
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8005
+    targetPort: 8005
+    protocol: TCP
+    name: http
+  selector:
+    app: ai-manager

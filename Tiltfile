@@ -126,19 +126,26 @@ k8s_resource(
 )
 
 # =================================================================
-# AI Manager Service (TODO)
+# AI Manager Service
 # =================================================================
 
-# Uncomment when implemented
-# docker_build(
-#     'ghcr.io/builderoftheworlds/ai-manager-service',
-#     'ai-manager-service',
-#     live_update=[
-#         sync('ai-manager-service/src', '/app/src'),
-#     ],
-# )
-# k8s_yaml('ai-manager-service/k8s/')
-# k8s_resource('ai-manager', port_forwards='8005:8005', labels=['services'])
+docker_build(
+    'ghcr.io/builderoftheworlds/ai-manager-service',
+    'ai-manager-service',
+    live_update=[
+        sync('ai-manager-service/src', '/app/src'),
+        sync('ai-manager-service/config.yaml', '/app/config.yaml'),
+        run('pip install -r requirements.txt', trigger='ai-manager-service/requirements.txt'),
+    ],
+)
+
+k8s_yaml('ai-manager-service/k8s/')
+k8s_resource(
+    'ai-manager',
+    port_forwards='8005:8005',
+    resource_deps=['redis', 'llm-proxy', 'lore-rag', 'character-agent', 'simulation-engine'],
+    labels=['services'],
+)
 
 # =================================================================
 # Local Scripts and Tools
@@ -172,6 +179,7 @@ print("""
   • Lore RAG:         http://localhost:8002
   • Character Agent:  http://localhost:8003
   • Simulation:       http://localhost:8004
+  • AI Manager:       http://localhost:8005
 
 💾 Databases:
   • PostgreSQL:    localhost:5432

@@ -186,18 +186,34 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
-  # Uncomment when implementing other services
-
-  # ai-manager:
-  #   build: ./ai-manager-service
-  #   ports:
-  #     - "8005:8005"
-  #   environment:
-  #     - POSTGRES_HOST=postgres
-  #     - REDIS_HOST=redis
-  #   depends_on:
-  #     - postgres
-  #     - redis
+  ai-manager:
+    build:
+      context: ./ai-manager-service
+      dockerfile: Dockerfile
+    container_name: ashiorid-ai-manager
+    ports:
+      - "8005:8005"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=human
+      - ENVIRONMENT=development
+    depends_on:
+      redis:
+        condition: service_healthy
+      llm-proxy:
+        condition: service_started
+      lore-rag:
+        condition: service_started
+      character-agent:
+        condition: service_started
+      simulation-engine:
+        condition: service_started
+    volumes:
+      - ./ai-manager-service/src:/app/src
+      - ./ai-manager-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+    restart: unless-stopped
 
 volumes:
   postgres_data:
