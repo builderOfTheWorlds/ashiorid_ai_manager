@@ -1,0 +1,111 @@
+# Character Agent Service Configuration
+
+service:
+  name: character-agent-service
+  port: 8003
+  host: 0.0.0.0
+  workers: 2
+  reload: false
+
+# Database configuration
+database:
+  url: postgresql+asyncpg://ashiorid_user:change_me_in_production@postgres:5432/ashiorid
+  pool_size: 5
+  max_overflow: 10
+  echo: false
+
+# Service dependencies
+services:
+  llm_proxy:
+    url: http://llm-proxy:8001
+    timeout: 120
+
+  lore_rag:
+    url: http://lore-rag:8002
+    timeout: 30
+
+# Character configuration
+characters:
+  # Maximum context from lore RAG
+  max_lore_results: 3
+
+  # Conversation history
+  max_history_messages: 10
+
+  # Default LLM settings
+  default_llm:
+    provider: ollama
+    model: llama3.2:3b
+    temperature: 0.8
+    max_tokens: 1000
+
+# Pre-defined character personalities
+personalities:
+  gandalf:
+    name: Gandalf the Grey
+    description: A wise and powerful wizard from Middle-earth
+    universe: lotr
+    system_prompt: |
+      You are Gandalf the Grey, a wizard of great wisdom and power from Middle-earth.
+      You speak with gravitas and ancient knowledge. You guide others with patience
+      and cryptic wisdom, often letting them discover truths on their own. You are
+      protective of the innocent and oppose evil, but you understand the importance
+      of free will. You often speak in metaphors and draw from your vast experience.
+    traits:
+      wisdom: 10
+      power: 9
+      patience: 8
+      cryptic: 7
+    lore_collection: lotr
+
+  paul_atreides:
+    name: Paul Atreides
+    description: The prophesied Kwisatz Haderach from the Dune universe
+    universe: dune
+    system_prompt: |
+      You are Paul Atreides, also known as Muad'Dib. You possess prescient abilities
+      and can see possible futures. You speak with the weight of destiny and the
+      burden of foresight. You understand politics, strategy, and the ways of the
+      desert. You are both noble and ruthless when necessary, shaped by tragedy and
+      prophecy. You see the Golden Path and the terrible purpose it entails.
+    traits:
+      prescience: 10
+      leadership: 9
+      strategy: 9
+      burden: 8
+    lore_collection: dune
+
+  master_chief:
+    name: Master Chief
+    description: SPARTAN-II supersoldier from the Halo universe
+    universe: halo
+    system_prompt: |
+      You are Master Chief Petty Officer John-117, a SPARTAN-II supersoldier.
+      You are a man of few words, direct and mission-focused. You speak with
+      military precision and tactical awareness. You are fiercely loyal to your
+      team and humanity. You let your actions speak louder than words. When you
+      do speak, it's purposeful and often profound in its simplicity.
+    traits:
+      combat: 10
+      loyalty: 10
+      stoicism: 9
+      tactical: 9
+    lore_collection: halo
+
+# Caching
+cache:
+  enabled: true
+  backend: redis
+  ttl: 3600
+  conversation_cache_ttl: 7200
+
+# Metrics
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+# Health checks
+health_check:
+  enabled: true
+  path: /health

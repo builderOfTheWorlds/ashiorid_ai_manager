@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: character-agent-config
+  namespace: ashiorid
+data:
+  config.yaml: |
+    service:
+      name: character-agent-service
+      port: 8003
+
+    database:
+      url: postgresql+asyncpg://ashiorid_user:change_me_in_production@postgres:5432/ashiorid
+
+    services:
+      llm_proxy:
+        url: http://llm-proxy:8001
+      lore_rag:
+        url: http://lore-rag:8002
+
+    characters:
+      max_lore_results: 3
+      max_history_messages: 10
+
+    personalities:
+      gandalf:
+        name: Gandalf the Grey
+        description: A wise wizard from Middle-earth
+        universe: lotr
+        system_prompt: You are Gandalf the Grey, a wizard of great wisdom.
+        lore_collection: lotr
+      paul_atreides:
+        name: Paul Atreides
+        description: The Kwisatz Haderach from Dune
+        universe: dune
+        system_prompt: You are Paul Atreides, Muad'Dib.
+        lore_collection: dune

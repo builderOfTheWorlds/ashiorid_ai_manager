@@ -135,18 +135,34 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
-  # Uncomment when implementing other services
+  character-agent:
+    build:
+      context: ./character-agent-service
+      dockerfile: Dockerfile
+    container_name: ashiorid-character-agent
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://ashiorid_user:dev_password@postgres:5432/ashiorid
+      - REDIS_HOST=redis
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=human
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      llm-proxy:
+        condition: service_started
+      lore-rag:
+        condition: service_started
+    volumes:
+      - ./character-agent-service/src:/app/src
+      - ./character-agent-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+    restart: unless-stopped
 
-  # character-agent:
-  #   build: ./character-agent-service
-  #   ports:
-  #     - "8003:8003"
-  #   environment:
-  #     - POSTGRES_HOST=postgres
-  #     - REDIS_HOST=redis
-  #   depends_on:
-  #     - postgres
-  #     - redis
+  # Uncomment when implementing other services
 
   # simulation-engine:
   #   build: ./simulation-engine

@@ -82,19 +82,26 @@ k8s_resource(
 )
 
 # =================================================================
-# Character Agent Service (TODO)
+# Character Agent Service
 # =================================================================
 
-# Uncomment when implemented
-# docker_build(
-#     'ghcr.io/builderoftheworlds/character-agent-service',
-#     'character-agent-service',
-#     live_update=[
-#         sync('character-agent-service/src', '/app/src'),
-#     ],
-# )
-# k8s_yaml('character-agent-service/k8s/')
-# k8s_resource('character-agent', port_forwards='8003:8003', labels=['services'])
+docker_build(
+    'ghcr.io/builderoftheworlds/character-agent-service',
+    'character-agent-service',
+    live_update=[
+        sync('character-agent-service/src', '/app/src'),
+        sync('character-agent-service/config.yaml', '/app/config.yaml'),
+        run('pip install -r requirements.txt', trigger='character-agent-service/requirements.txt'),
+    ],
+)
+
+k8s_yaml('character-agent-service/k8s/')
+k8s_resource(
+    'character-agent',
+    port_forwards='8003:8003',
+    resource_deps=['postgres', 'llm-proxy', 'lore-rag'],
+    labels=['services'],
+)
 
 # =================================================================
 # Simulation Engine (TODO)
@@ -154,8 +161,9 @@ print("""
   • Qdrant UI:     http://localhost:6333/dashboard
 
 🚀 Services:
-  • LLM Proxy:     http://localhost:8001
-  • Lore RAG:      http://localhost:8002
+  • LLM Proxy:        http://localhost:8001
+  • Lore RAG:         http://localhost:8002
+  • Character Agent:  http://localhost:8003
 
 💾 Databases:
   • PostgreSQL:    localhost:5432
