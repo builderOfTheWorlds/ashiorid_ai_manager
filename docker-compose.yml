@@ -1,5 +1,4 @@
-version: '3.8'
-
+# Docker Compose for Ashiorid AI Manager
 services:
   # =================================================================
   # Infrastructure
@@ -60,7 +59,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./k8s/monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
