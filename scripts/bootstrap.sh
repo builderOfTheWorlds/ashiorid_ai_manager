@@ -133,10 +133,33 @@ print_header "Python Environment Setup"
 
 echo "Setting up Python virtual environment..."
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    echo "Creating virtual environment..."
+    if ! python3 -m venv venv; then
+        print_error "Failed to create virtual environment"
+        echo ""
+        echo "On Ubuntu/Debian systems, you may need to install python3-venv:"
+        echo "  sudo apt-get install python3-venv"
+        echo ""
+        echo "On Fedora/RHEL systems:"
+        echo "  sudo dnf install python3-virtualenv"
+        exit 1
+    fi
     print_success "Created virtual environment"
 fi
 
+# Verify venv was created successfully
+if [ ! -f "venv/bin/activate" ]; then
+    print_error "Virtual environment exists but is incomplete"
+    echo "Removing corrupted venv directory..."
+    rm -rf venv
+    echo ""
+    echo "Please ensure python3-venv is installed and run this script again:"
+    echo "  sudo apt-get install python3-venv  # Ubuntu/Debian"
+    echo "  sudo dnf install python3-virtualenv  # Fedora/RHEL"
+    exit 1
+fi
+
+echo "Activating virtual environment..."
 source venv/bin/activate
 
 echo "Installing shared dependencies..."
