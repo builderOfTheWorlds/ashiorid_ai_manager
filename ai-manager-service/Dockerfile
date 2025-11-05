@@ -29,5 +29,5 @@ ENV PYTHONPATH=/app:$PYTHONPATH
 # Expose port
 EXPOSE 8005
 
-# Run the service
+# Run the service (as root for development)
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8005"]

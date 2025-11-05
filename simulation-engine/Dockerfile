@@ -12,8 +12,6 @@ ENV PATH=/root/.local/bin:$PATH
 COPY src/ /app/src/
 COPY config.yaml /app/
 ENV PYTHONPATH=/app:$PYTHONPATH
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 EXPOSE 8004
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8004/health')"
