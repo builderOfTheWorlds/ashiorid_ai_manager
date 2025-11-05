@@ -8,7 +8,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
-COPY ../shared /app/shared
+# Note: shared utilities are mounted as volume in docker-compose
 COPY src/ /app/src/
 COPY config.yaml /app/
 ENV PYTHONPATH=/app:$PYTHONPATH

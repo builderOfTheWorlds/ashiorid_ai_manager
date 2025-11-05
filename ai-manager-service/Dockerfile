@@ -15,14 +15,16 @@ WORKDIR /app
 # Copy dependencies from builder
 COPY --from=builder /root/.local /root/.local
 
-# Copy application code
-COPY . .
-
-# Copy shared utilities
-COPY ../shared /app/shared
-
 # Make sure scripts are executable
 ENV PATH=/root/.local/bin:$PATH
+
+# Copy application code
+# Note: shared utilities are mounted as volume in docker-compose
+COPY src/ /app/src/
+COPY config.yaml /app/
+
+# Set Python path
+ENV PYTHONPATH=/app:$PYTHONPATH
 
 # Expose port
 EXPOSE 8005

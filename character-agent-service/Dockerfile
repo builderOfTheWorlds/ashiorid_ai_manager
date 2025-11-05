@@ -23,10 +23,8 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy shared utilities
-COPY ../shared /app/shared
-
 # Copy application code
+# Note: shared utilities are mounted as volume in docker-compose
 COPY src/ /app/src/
 COPY config.yaml /app/
 COPY alembic.ini /app/
