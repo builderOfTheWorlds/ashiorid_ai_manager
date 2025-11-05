@@ -6,6 +6,7 @@ Real-time monitoring dashboard for all services.
 """
 
 import asyncio
+import os
 import time
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -20,12 +21,16 @@ from rich.text import Text
 
 
 # Service endpoints
+# Use SERVICE_HOST env var to connect to WSL2 from Windows
+# Example: SET SERVICE_HOST=172.22.223.147 (Windows) or export SERVICE_HOST=172.22.223.147 (Linux)
+SERVICE_HOST = os.getenv("SERVICE_HOST", "localhost")
+
 SERVICES = {
-    "llm-proxy": "http://localhost:8001",
-    "lore-rag": "http://localhost:8002",
-    "character-agent": "http://localhost:8003",
-    "simulation-engine": "http://localhost:8004",
-    "ai-manager": "http://localhost:8005",
+    "llm-proxy": f"http://{SERVICE_HOST}:8001",
+    "lore-rag": f"http://{SERVICE_HOST}:8002",
+    "character-agent": f"http://{SERVICE_HOST}:8003",
+    "simulation-engine": f"http://{SERVICE_HOST}:8004",
+    "ai-manager": f"http://{SERVICE_HOST}:8005",
 }
 
 # Kubernetes mode (if running in cluster)
