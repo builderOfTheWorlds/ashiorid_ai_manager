@@ -162,18 +162,31 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
-  # Uncomment when implementing other services
+  simulation-engine:
+    build:
+      context: ./simulation-engine
+      dockerfile: Dockerfile
+    container_name: ashiorid-simulation-engine
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://ashiorid_user:dev_password@postgres:5432/ashiorid
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=human
+      - ENVIRONMENT=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./simulation-engine/src:/app/src
+      - ./simulation-engine/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+    restart: unless-stopped
 
-  # simulation-engine:
-  #   build: ./simulation-engine
-  #   ports:
-  #     - "8004:8004"
-  #   environment:
-  #     - POSTGRES_HOST=postgres
-  #     - REDIS_HOST=redis
-  #   depends_on:
-  #     - postgres
-  #     - redis
+  # Uncomment when implementing other services
 
   # ai-manager:
   #   build: ./ai-manager-service

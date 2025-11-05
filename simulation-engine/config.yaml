@@ -1,0 +1,89 @@
+# Simulation Engine Configuration
+
+service:
+  name: simulation-engine
+  port: 8004
+  host: 0.0.0.0
+  workers: 1  # Single worker for consistent simulation state
+
+# Database
+database:
+  url: postgresql+asyncpg://ashiorid_user:change_me_in_production@postgres:5432/ashiorid
+  pool_size: 5
+  max_overflow: 10
+
+# Service dependencies
+services:
+  llm_proxy:
+    url: http://llm-proxy:8001
+    timeout: 30
+
+# Simulation settings
+simulation:
+  # World grid
+  grid_size: 100
+
+  # Timing
+  tick_rate: 10  # ticks per second
+  max_agents: 1000
+
+  # Agent spawning
+  initial_agents: 100
+  spawn_rate: 0.1  # probability per tick
+
+  # Agent lifecycle
+  max_age: 1000  # ticks
+  death_threshold: 0.1  # health below this = death
+
+  # Needs decay rates (per tick)
+  hunger_decay: 0.001
+  thirst_decay: 0.002
+  energy_decay: 0.0015
+  health_decay_hungry: 0.005
+  health_decay_thirsty: 0.01
+
+  # Resource locations (percentage of grid)
+  food_locations: 10
+  water_locations: 10
+  rest_locations: 5
+
+# Agent behavior
+behavior:
+  # LLM decision probability
+  llm_decision_probability: 0.05  # 5% of decisions use LLM
+
+  # Movement
+  move_cost_energy: 0.01
+  max_move_distance: 5
+
+  # Actions
+  eat_hunger_restore: 0.3
+  drink_thirst_restore: 0.4
+  rest_energy_restore: 0.5
+
+  # Decision thresholds
+  critical_hunger: 0.7
+  critical_thirst: 0.8
+  critical_energy: 0.3
+
+# LLM settings for agent decisions
+llm:
+  provider: ollama
+  model: llama3.2:1b  # Fast, lightweight model
+  temperature: 0.9
+  max_tokens: 50  # Short responses for speed
+
+# Redis pub/sub
+redis:
+  host: redis
+  port: 6379
+  events_channel: simulation_events
+
+# Metrics
+metrics:
+  enabled: true
+  port: 9090
+
+# Health checks
+health_check:
+  enabled: true

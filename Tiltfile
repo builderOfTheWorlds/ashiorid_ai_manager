@@ -104,19 +104,26 @@ k8s_resource(
 )
 
 # =================================================================
-# Simulation Engine (TODO)
+# Simulation Engine
 # =================================================================
 
-# Uncomment when implemented
-# docker_build(
-#     'ghcr.io/builderoftheworlds/simulation-engine',
-#     'simulation-engine',
-#     live_update=[
-#         sync('simulation-engine/src', '/app/src'),
-#     ],
-# )
-# k8s_yaml('simulation-engine/k8s/')
-# k8s_resource('simulation-engine', port_forwards='8004:8004', labels=['services'])
+docker_build(
+    'ghcr.io/builderoftheworlds/simulation-engine',
+    'simulation-engine',
+    live_update=[
+        sync('simulation-engine/src', '/app/src'),
+        sync('simulation-engine/config.yaml', '/app/config.yaml'),
+        run('pip install -r requirements.txt', trigger='simulation-engine/requirements.txt'),
+    ],
+)
+
+k8s_yaml('simulation-engine/k8s/')
+k8s_resource(
+    'simulation-engine',
+    port_forwards='8004:8004',
+    resource_deps=['postgres', 'redis'],
+    labels=['services'],
+)
 
 # =================================================================
 # AI Manager Service (TODO)
@@ -164,6 +171,7 @@ print("""
   • LLM Proxy:        http://localhost:8001
   • Lore RAG:         http://localhost:8002
   • Character Agent:  http://localhost:8003
+  • Simulation:       http://localhost:8004
 
 💾 Databases:
   • PostgreSQL:    localhost:5432

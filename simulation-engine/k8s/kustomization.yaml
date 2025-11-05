@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ashiorid
+
+resources:
+  - deployment.yaml
+  - configmap.yaml
+
+commonLabels:
+  app.kubernetes.io/name: simulation-engine
+  app.kubernetes.io/part-of: ashiorid
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ghcr.io/builderoftheworlds/ashiorid-simulation-engine
+    newTag: latest

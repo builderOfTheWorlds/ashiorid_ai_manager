@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simulation-engine-config
+  namespace: ashiorid
+  labels:
+    app: simulation-engine
+data:
+  config.yaml: |
+    service:
+      name: "simulation-engine"
+      port: 8004
+      host: "0.0.0.0"
+
+    simulation:
+      grid_size: 100
+      tick_rate: 10
+      max_agents: 1000
+
+      # Need decay rates per tick
+      hunger_decay: 0.001
+      thirst_decay: 0.002
+      energy_decay: 0.0015
+
+      # LLM decision making (probability of asking LLM vs rule-based)
+      llm_decision_probability: 0.05
+      llm_decision_interval: 50  # ticks between LLM decisions
+
+    redis:
+      url: "redis://redis:6379/0"
+      event_channel: "simulation_events"
+
+    # Service dependencies
+    services:
+      llm_proxy:
+        url: "http://llm-proxy:8001"
+      character_agent:
+        url: "http://character-agent:8003"
+      lore_rag:
+        url: "http://lore-rag:8002"
+
+    # Database configuration
+    database:
+      pool_size: 20
+      max_overflow: 10
+      pool_timeout: 30
+      pool_recycle: 3600
