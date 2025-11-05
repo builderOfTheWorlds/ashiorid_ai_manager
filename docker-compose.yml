@@ -7,6 +7,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: ashiorid-postgres
+    platform: linux/amd64
     environment:
       POSTGRES_DB: ashiorid
       POSTGRES_USER: ashiorid_user
@@ -15,8 +16,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ashiorid_user"]
+      test: ["CMD-SHELL", "pg_isready -U ashiorid_user -d ashiorid"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +38,7 @@ services:
       retries: 5
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.7.4
     container_name: ashiorid-qdrant
     platform: linux/amd64
     ports:
@@ -69,6 +71,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: ashiorid-grafana
+    platform: linux/amd64
     ports:
       - "3000:3000"
     environment:
