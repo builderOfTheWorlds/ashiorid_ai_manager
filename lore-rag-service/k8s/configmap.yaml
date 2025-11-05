@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lore-rag-config
+  namespace: ashiorid
+data:
+  config.yaml: |
+    service:
+      name: lore-rag-service
+      port: 8002
+      host: 0.0.0.0
+
+    qdrant:
+      host: qdrant
+      port: 6333
+      timeout: 30
+      collections:
+        default: lore
+        vector_size: 768
+        distance: Cosine
+
+    ollama:
+      host: http://host.docker.internal:11434
+      model: nomic-embed-text
+      timeout: 60
+      batch_size: 32
+
+    text_processing:
+      chunk_size: 512
+      chunk_overlap: 50
+      min_chunk_size: 100
+
+    search:
+      default_limit: 5
+      max_limit: 100
+      default_threshold: 0.7
+
+    cache:
+      enabled: true
+      backend: redis
+      ttl: 3600
+
+    metrics:
+      enabled: true
+      port: 9090
+      path: /metrics

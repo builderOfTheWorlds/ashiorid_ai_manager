@@ -108,17 +108,34 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
+  lore-rag:
+    build:
+      context: ./lore-rag-service
+      dockerfile: Dockerfile
+    container_name: ashiorid-lore-rag
+    ports:
+      - "8002:8002"
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=human
+      - ENVIRONMENT=development
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./lore-rag-service/src:/app/src
+      - ./lore-rag-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+    restart: unless-stopped
+
   # Uncomment when implementing other services
-  # lore-rag:
-  #   build: ./lore-rag-service
-  #   ports:
-  #     - "8002:8002"
-  #   environment:
-  #     - QDRANT_HOST=qdrant
-  #     - REDIS_HOST=redis
-  #   depends_on:
-  #     - qdrant
-  #     - redis
 
   # character-agent:
   #   build: ./character-agent-service

@@ -60,19 +60,26 @@ k8s_resource(
 )
 
 # =================================================================
-# Lore RAG Service (TODO)
+# Lore RAG Service
 # =================================================================
 
-# Uncomment when implemented
-# docker_build(
-#     'ghcr.io/builderoftheworlds/lore-rag-service',
-#     'lore-rag-service',
-#     live_update=[
-#         sync('lore-rag-service/src', '/app/src'),
-#     ],
-# )
-# k8s_yaml('lore-rag-service/k8s/')
-# k8s_resource('lore-rag', port_forwards='8002:8002', labels=['services'])
+docker_build(
+    'ghcr.io/builderoftheworlds/lore-rag-service',
+    'lore-rag-service',
+    live_update=[
+        sync('lore-rag-service/src', '/app/src'),
+        sync('lore-rag-service/config.yaml', '/app/config.yaml'),
+        run('pip install -r requirements.txt', trigger='lore-rag-service/requirements.txt'),
+    ],
+)
+
+k8s_yaml('lore-rag-service/k8s/')
+k8s_resource(
+    'lore-rag',
+    port_forwards='8002:8002',
+    resource_deps=['qdrant', 'redis'],
+    labels=['services'],
+)
 
 # =================================================================
 # Character Agent Service (TODO)
@@ -148,6 +155,7 @@ print("""
 
 🚀 Services:
   • LLM Proxy:     http://localhost:8001
+  • Lore RAG:      http://localhost:8002
 
 💾 Databases:
   • PostgreSQL:    localhost:5432

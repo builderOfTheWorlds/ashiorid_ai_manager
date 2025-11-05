@@ -1,0 +1,72 @@
+# Lore RAG Service Configuration
+
+service:
+  name: lore-rag-service
+  port: 8002
+  host: 0.0.0.0
+  workers: 2
+  reload: false
+
+# Qdrant Vector Database
+qdrant:
+  host: qdrant
+  port: 6333
+  grpc_port: 6334
+  use_grpc: false
+  timeout: 30
+
+  # Collection settings
+  collections:
+    default: lore
+    vector_size: 768  # nomic-embed-text dimension
+    distance: Cosine  # Cosine, Euclid, or Dot
+
+# Ollama for embeddings
+ollama:
+  host: http://host.docker.internal:11434
+  model: nomic-embed-text
+  timeout: 60
+  batch_size: 32
+
+# Text processing
+text_processing:
+  chunk_size: 512  # tokens per chunk
+  chunk_overlap: 50  # overlap between chunks
+  min_chunk_size: 100  # minimum tokens
+
+  # Languages to support
+  languages:
+    - en
+
+# Search settings
+search:
+  default_limit: 5
+  max_limit: 100
+  default_threshold: 0.7
+  min_threshold: 0.0
+
+# Caching
+cache:
+  enabled: true
+  backend: redis
+  ttl: 3600
+  search_cache_ttl: 1800
+
+# Ingestion settings
+ingestion:
+  max_file_size_mb: 50
+  supported_formats:
+    - txt
+    - md
+  batch_size: 100
+
+# Metrics
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+# Health checks
+health_check:
+  enabled: true
+  path: /health
