@@ -27,8 +27,7 @@ ENV PATH=/root/.local/bin:$PATH
 # Note: shared utilities are mounted as volume in docker-compose
 COPY src/ /app/src/
 COPY config.yaml /app/
-COPY alembic.ini /app/
-COPY alembic/ /app/alembic/
+# Note: alembic migrations not included in initial build
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH
