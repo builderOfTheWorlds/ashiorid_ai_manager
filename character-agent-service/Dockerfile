@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-COPY requirements.txt .
+COPY character-agent-service/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Final stage
@@ -24,9 +24,10 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
 # Copy application code
-# Note: shared utilities are mounted as volume in docker-compose
-COPY src/ /app/src/
-COPY config.yaml /app/
+COPY character-agent-service/src/ /app/src/
+COPY character-agent-service/config.yaml /app/
+# Copy shared utilities
+COPY shared/ /app/shared/
 # Note: alembic migrations not included in initial build
 
 # Set Python path

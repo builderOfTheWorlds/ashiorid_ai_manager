@@ -40,7 +40,7 @@ class Conversation(Base):
     character_response = Column(Text, nullable=False)
     lore_sources = Column(JSON)  # List of lore sources used
     reasoning = Column(Text)  # Internal reasoning (optional)
-    metadata = Column(JSON)  # Additional metadata
+    properties = Column(JSON)  # Additional properties (renamed from metadata to avoid SQLAlchemy conflict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (

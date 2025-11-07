@@ -20,7 +20,7 @@ data:
         distance: Cosine
 
     ollama:
-      host: http://host.docker.internal:11434
+      host: http://ollama:11434
       model: nomic-embed-text
       timeout: 60
       batch_size: 32

@@ -1,0 +1,22 @@
+web_frontend:
+  title: "Ashiorid AI Manager"
+  host: "0.0.0.0"
+  port: 8501
+
+ai_manager:
+  base_url: "http://ai-manager:8005"
+  timeout: 30
+
+features:
+  enable_world_query: true
+  enable_character_query: true
+  enable_events: true
+  enable_system_status: true
+
+locales:
+  - "en-US"
+  - "es-ES"
+  - "fr-FR"
+  - "de-DE"
+  - "ja-JP"
+  - "zh-CN"

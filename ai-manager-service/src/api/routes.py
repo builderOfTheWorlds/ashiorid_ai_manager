@@ -8,7 +8,7 @@ import sys
 sys.path.append('../../..')
 from shared.common_types import LLMProvider
 
-from src.main import get_orchestrator, get_event_generator
+from src.dependencies import get_orchestrator, get_event_generator
 from src.services.orchestrator import OrchestratorService
 from src.services.event_generator import WorldEventGenerator
 

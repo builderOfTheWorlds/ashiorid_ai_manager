@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-COPY requirements.txt .
+COPY lore-rag-service/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Download NLTK data
@@ -28,9 +28,10 @@ COPY --from=builder /root/nltk_data /root/nltk_data
 ENV PATH=/root/.local/bin:$PATH
 
 # Copy application code
-# Note: shared utilities are mounted as volume in docker-compose
-COPY src/ /app/src/
-COPY config.yaml /app/
+COPY lore-rag-service/src/ /app/src/
+COPY lore-rag-service/config.yaml /app/
+# Copy shared utilities
+COPY shared/ /app/shared/
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH
