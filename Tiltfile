@@ -46,6 +46,7 @@ k8s_resource('traefik', port_forwards=['80:80', '8080:8080'])
 # =================================================================
 
 # Build Docker image for local development
+# Note: Build from root context to access shared directory
 docker_build(
     'llm-proxy-service',
     '.',  # Build context is project root to access shared/
@@ -78,7 +79,6 @@ docker_build(
     live_update=[
         sync('lore-rag-service/src', '/app/src'),
         sync('lore-rag-service/config.yaml', '/app/config.yaml'),
-        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='lore-rag-service/requirements.txt'),
     ],
 )

@@ -31,8 +31,9 @@ ENV PATH=/root/.local/bin:$PATH
 COPY shared/ /app/shared/
 
 # Copy application code
-COPY lore-rag-service/src/ /app/src/
-COPY lore-rag-service/config.yaml /app/
+# Note: shared utilities are mounted as volume in docker-compose
+COPY src/ /app/src/
+COPY config.yaml /app/
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH
