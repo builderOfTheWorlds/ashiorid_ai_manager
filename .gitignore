@@ -54,6 +54,12 @@ htmlcov/
 logs/
 *.log.*
 
+# Tilt logs - track directory structure but ignore log files
+tilt-logs/*.log
+tilt-logs/*.log.*
+!tilt-logs/.gitkeep
+!tilt-logs/README.md
+
 # Jupyter Notebooks
 .ipynb_checkpoints
 
