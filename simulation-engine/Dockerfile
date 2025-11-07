@@ -8,13 +8,11 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
-
-# Copy shared utilities first (from project root context)
-COPY shared/ /app/shared/
-
 # Copy application code
 COPY simulation-engine/src/ /app/src/
 COPY simulation-engine/config.yaml /app/
+# Copy shared utilities
+COPY shared/ /app/shared/
 ENV PYTHONPATH=/app:$PYTHONPATH
 EXPOSE 8004
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

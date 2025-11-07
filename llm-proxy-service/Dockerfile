@@ -25,12 +25,11 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy shared utilities first (from project root context)
-COPY shared/ /app/shared/
-
 # Copy application code
 COPY llm-proxy-service/src/ /app/src/
 COPY llm-proxy-service/config.yaml /app/
+# Copy shared utilities
+COPY shared/ /app/shared/
 
 # Set Python path to include shared
 ENV PYTHONPATH=/app:$PYTHONPATH
