@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY llm-proxy-service/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Final stage
@@ -25,10 +25,10 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy application code
-# Note: shared utilities are mounted as volume in docker-compose
-COPY src/ /app/src/
-COPY config.yaml /app/
+# Copy shared utilities and application code
+COPY shared/ /app/shared/
+COPY llm-proxy-service/src/ /app/src/
+COPY llm-proxy-service/config.yaml /app/
 
 # Set Python path to include shared
 ENV PYTHONPATH=/app:$PYTHONPATH

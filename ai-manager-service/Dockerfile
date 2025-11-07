@@ -4,7 +4,7 @@ FROM python:3.11-slim as builder
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
+COPY ai-manager-service/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Final stage
@@ -18,10 +18,10 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts are executable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy application code
-# Note: shared utilities are mounted as volume in docker-compose
-COPY src/ /app/src/
-COPY config.yaml /app/
+# Copy shared utilities and application code
+COPY shared/ /app/shared/
+COPY ai-manager-service/src/ /app/src/
+COPY ai-manager-service/config.yaml /app/
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH
