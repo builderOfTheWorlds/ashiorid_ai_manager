@@ -46,12 +46,15 @@ k8s_resource('traefik', port_forwards=['80:80', '8080:8080'])
 # =================================================================
 
 # Build Docker image for local development
+# Note: Build from root context to access shared directory
 docker_build(
     'llm-proxy-service',
-    'llm-proxy-service',
+    '.',
+    dockerfile='llm-proxy-service/Dockerfile',
     live_update=[
         sync('llm-proxy-service/src', '/app/src'),
         sync('llm-proxy-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='llm-proxy-service/requirements.txt'),
     ],
 )

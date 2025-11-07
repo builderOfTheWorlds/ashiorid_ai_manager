@@ -13,8 +13,6 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 from fastapi.responses import Response
 
 # Import shared utilities
-import sys
-sys.path.append('..')
 from shared.logging_config import setup_logging, get_logger
 from shared.base_config import load_service_config
 from shared.common_types import HealthCheck, HealthStatus
