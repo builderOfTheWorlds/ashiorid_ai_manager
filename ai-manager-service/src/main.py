@@ -14,13 +14,13 @@ from shared.base_config import load_service_config
 from shared.logging_config import setup_logging, get_logger
 
 from src.api import routes
-from src import dependencies
 from src.services.orchestrator import OrchestratorService
 from src.services.event_generator import WorldEventGenerator
 from src.services.llm_client import LLMClient
 from src.services.character_client import CharacterClient
 from src.services.lore_client import LoreClient
 from src.services.simulation_client import SimulationClient
+from src import dependencies
 
 # Load configuration
 config = load_service_config("ai-manager")
@@ -52,6 +52,7 @@ SERVICE_HEALTH = Gauge(
     "Health status of dependent services",
     ["service"]
 )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

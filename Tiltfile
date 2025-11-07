@@ -164,6 +164,29 @@ k8s_resource(
 )
 
 # =================================================================
+# Web Frontend
+# =================================================================
+
+docker_build(
+    'web-frontend',
+    'web-frontend',
+    dockerfile='web-frontend/Dockerfile',
+    live_update=[
+        sync('web-frontend/app.py', '/app/app.py'),
+        sync('web-frontend/config.yaml', '/app/config.yaml'),
+        run('pip install -r requirements.txt', trigger='web-frontend/requirements.txt'),
+    ],
+)
+
+k8s_yaml(kustomize('web-frontend/k8s/'))
+k8s_resource(
+    'web-frontend',
+    port_forwards='8501:8501',
+    resource_deps=['ai-manager'],
+    labels=['frontend'],
+)
+
+# =================================================================
 # Local Scripts and Tools
 # =================================================================
 
@@ -197,6 +220,8 @@ print("""
   • Character Agent:  http://localhost:8003
   • Simulation:       http://localhost:8004
   • AI Manager:       http://localhost:8005
+  • Web Frontend:     http://localhost:8501
+  • Web Frontend:     http://localhost:8501
 
 💾 Databases:
   • PostgreSQL:    localhost:5432

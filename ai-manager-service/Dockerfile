@@ -1,4 +1,5 @@
 # Multi-stage build for AI Manager Service
+# Force rebuild to include dependencies.py
 FROM python:3.11-slim as builder
 
 WORKDIR /app

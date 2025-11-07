@@ -22,7 +22,20 @@
       "Bash(docker run:*)",
       "Bash(cat:*)",
       "Bash(sudo cp:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(tilt trigger:*)",
+      "Bash(kubectl exec:*)",
+      "Bash(kubectl scale:*)",
+      "Bash(docker build:*)",
+      "Bash(docker push:*)",
+      "Bash(kubectl set image:*)",
+      "Bash(mkdir:*)",
+      "Bash(docker network inspect:*)",
+      "Bash(docker network:*)",
+      "Bash(sudo systemctl status:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl rollout restart:*)",
+      "Bash(kubectl wait:*)"
     ],
     "deny": [],
     "ask": []
