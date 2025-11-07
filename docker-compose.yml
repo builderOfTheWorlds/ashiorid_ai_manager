@@ -88,8 +88,8 @@ services:
 
   llm-proxy:
     build:
-      context: ./llm-proxy-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: llm-proxy-service/Dockerfile
     container_name: ashiorid-llm-proxy
     ports:
       - "8001:8001"
@@ -113,8 +113,8 @@ services:
 
   lore-rag:
     build:
-      context: ./lore-rag-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: lore-rag-service/Dockerfile
     container_name: ashiorid-lore-rag
     ports:
       - "8002:8002"
@@ -140,8 +140,8 @@ services:
 
   character-agent:
     build:
-      context: ./character-agent-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: character-agent-service/Dockerfile
     container_name: ashiorid-character-agent
     ports:
       - "8003:8003"
@@ -167,8 +167,8 @@ services:
 
   simulation-engine:
     build:
-      context: ./simulation-engine
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: simulation-engine/Dockerfile
     container_name: ashiorid-simulation-engine
     ports:
       - "8004:8004"
@@ -191,8 +191,8 @@ services:
 
   ai-manager:
     build:
-      context: ./ai-manager-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ai-manager-service/Dockerfile
     container_name: ashiorid-ai-manager
     ports:
       - "8005:8005"
