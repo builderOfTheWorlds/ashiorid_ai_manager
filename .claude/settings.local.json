@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl config:*)",
+      "Bash(kubectl cluster-info:*)",
+      "Bash(k3d cluster:*)",
+      "Bash(curl:*)",
+      "Bash(bash)",
+      "Bash(export PATH=\"$HOME/.local/bin:$PATH\")",
+      "Bash(k3d version:*)",
+      "Bash(snap list:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(tilt get:*)",
+      "Bash(tilt describe:*)",
+      "Bash(tilt version:*)",
+      "Bash(docker context:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(pkill:*)",
+      "Bash(sudo k3s check-config:*)",
+      "Bash(docker run:*)",
+      "Bash(cat:*)",
+      "Bash(sudo cp:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
