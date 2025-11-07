@@ -27,9 +27,6 @@ COPY --from=builder /root/nltk_data /root/nltk_data
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy shared utilities first (from project root context)
-COPY shared/ /app/shared/
-
 # Copy application code
 COPY lore-rag-service/src/ /app/src/
 COPY lore-rag-service/config.yaml /app/

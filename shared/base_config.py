@@ -92,23 +92,6 @@ def get_env(
             # Handle boolean conversion specially
             return value.lower() in ("true", "1", "yes", "on")  # type: ignore
         elif value_type == int:
-            # Handle Kubernetes service URL format (e.g., tcp://10.43.125.137:5432)
-            # Extract port if value is in URL format
-            if "://" in value:
-                # Parse URL to extract port
-                # Format: protocol://host:port or protocol://host:port/path
-                try:
-                    # Remove protocol
-                    without_protocol = value.split("://", 1)[1]
-                    # Extract host:port part (before any path)
-                    host_port = without_protocol.split("/", 1)[0]
-                    # Extract port (after last colon)
-                    if ":" in host_port:
-                        port_str = host_port.rsplit(":", 1)[1]
-                        return int(port_str)  # type: ignore
-                except (IndexError, ValueError):
-                    # If parsing fails, try direct conversion
-                    pass
             return int(value)  # type: ignore
         elif value_type == float:
             return float(value)  # type: ignore
