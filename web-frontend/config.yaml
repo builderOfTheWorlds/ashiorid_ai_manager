@@ -7,11 +7,17 @@ ai_manager:
   base_url: "http://ai-manager:8005"
   timeout: 30
 
+data_prep:
+  base_url: "http://data-prep:8006"
+  timeout: 60
+  upload_max_size_mb: 50
+
 features:
   enable_world_query: true
   enable_character_query: true
   enable_events: true
   enable_system_status: true
+  enable_data_prep: true
 
 locales:
   - "en-US"

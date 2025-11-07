@@ -241,6 +241,26 @@ services:
       - ./data-prep-service/processed_output:/app/processed_output
     restart: unless-stopped
 
+  web-frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    container_name: ashiorid-web-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - AI_MANAGER_URL=http://ai-manager:8005
+      - DATA_PREP_URL=http://data-prep:8006
+    depends_on:
+      ai-manager:
+        condition: service_started
+      data-prep:
+        condition: service_started
+    volumes:
+      - ./web-frontend/app.py:/app/app.py
+      - ./web-frontend/config.yaml:/app/config.yaml
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
