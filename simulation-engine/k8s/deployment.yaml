@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: simulation-engine
-        image: ghcr.io/builderoftheworlds/ashiorid-simulation-engine:latest
+        image: simulation-engine:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8004

@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: character-agent
-        image: ghcr.io/builderoftheworlds/character-agent-service:latest
+        image: character-agent-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8003

@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: llm-proxy
-        image: ghcr.io/builderoftheworlds/llm-proxy-service:latest
+        image: llm-proxy-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8001

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: ai-manager
-        image: ghcr.io/builderoftheworlds/ashiorid-ai-manager:latest
+        image: ai-manager-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8005

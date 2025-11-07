@@ -2,7 +2,13 @@
 # Development workflow with hot-reload
 
 # Allow K8s contexts (configure for your setup)
-allow_k8s_contexts('k3d-ashiorid')
+allow_k8s_contexts('default')
+
+# Configure for local development - use local Docker registry
+update_settings(k8s_upsert_timeout_secs=60)
+
+# Use local Docker registry for images
+default_registry('localhost:5000')
 
 # Load environment variables
 load('ext://dotenv', 'dotenv')
@@ -39,9 +45,9 @@ k8s_resource('traefik', port_forwards=['80:80', '8080:8080'])
 # LLM Proxy Service
 # =================================================================
 
-# Build Docker image
+# Build Docker image for local development
 docker_build(
-    'ghcr.io/builderoftheworlds/llm-proxy-service',
+    'llm-proxy-service',
     'llm-proxy-service',
     live_update=[
         sync('llm-proxy-service/src', '/app/src'),
@@ -51,7 +57,7 @@ docker_build(
 )
 
 # Deploy to K8s
-k8s_yaml('llm-proxy-service/k8s/')
+k8s_yaml(kustomize('llm-proxy-service/k8s/'))
 k8s_resource(
     'llm-proxy',
     port_forwards='8001:8001',
@@ -64,7 +70,7 @@ k8s_resource(
 # =================================================================
 
 docker_build(
-    'ghcr.io/builderoftheworlds/lore-rag-service',
+    'lore-rag-service',
     'lore-rag-service',
     live_update=[
         sync('lore-rag-service/src', '/app/src'),
@@ -73,7 +79,7 @@ docker_build(
     ],
 )
 
-k8s_yaml('lore-rag-service/k8s/')
+k8s_yaml(kustomize('lore-rag-service/k8s/'))
 k8s_resource(
     'lore-rag',
     port_forwards='8002:8002',
@@ -86,7 +92,7 @@ k8s_resource(
 # =================================================================
 
 docker_build(
-    'ghcr.io/builderoftheworlds/character-agent-service',
+    'character-agent-service',
     'character-agent-service',
     live_update=[
         sync('character-agent-service/src', '/app/src'),
@@ -95,7 +101,7 @@ docker_build(
     ],
 )
 
-k8s_yaml('character-agent-service/k8s/')
+k8s_yaml(kustomize('character-agent-service/k8s/'))
 k8s_resource(
     'character-agent',
     port_forwards='8003:8003',
@@ -108,7 +114,7 @@ k8s_resource(
 # =================================================================
 
 docker_build(
-    'ghcr.io/builderoftheworlds/simulation-engine',
+    'simulation-engine',
     'simulation-engine',
     live_update=[
         sync('simulation-engine/src', '/app/src'),
@@ -117,7 +123,7 @@ docker_build(
     ],
 )
 
-k8s_yaml('simulation-engine/k8s/')
+k8s_yaml(kustomize('simulation-engine/k8s/'))
 k8s_resource(
     'simulation-engine',
     port_forwards='8004:8004',
@@ -130,7 +136,7 @@ k8s_resource(
 # =================================================================
 
 docker_build(
-    'ghcr.io/builderoftheworlds/ai-manager-service',
+    'ai-manager-service',
     'ai-manager-service',
     live_update=[
         sync('ai-manager-service/src', '/app/src'),
@@ -139,7 +145,7 @@ docker_build(
     ],
 )
 
-k8s_yaml('ai-manager-service/k8s/')
+k8s_yaml(kustomize('ai-manager-service/k8s/'))
 k8s_resource(
     'ai-manager',
     port_forwards='8005:8005',
@@ -152,12 +158,13 @@ k8s_resource(
 # =================================================================
 
 # CLI Dashboard (run locally, not in K8s)
-local_resource(
-    'cli-dashboard',
-    serve_cmd='python cli-dashboard/dashboard.py',
-    deps=['cli-dashboard/dashboard.py'],
-    labels=['tools'],
-)
+# Disabled due to python permission issues
+# local_resource(
+#     'cli-dashboard',
+#     serve_cmd='python cli-dashboard/dashboard.py',
+#     deps=['cli-dashboard/dashboard.py'],
+#     labels=['tools'],
+# )
 
 # =================================================================
 # Development Helpers

@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: lore-rag
-        image: ghcr.io/builderoftheworlds/lore-rag-service:latest
+        image: lore-rag-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8002
