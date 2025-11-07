@@ -218,6 +218,29 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
+  data-prep:
+    build:
+      context: .
+      dockerfile: data-prep-service/Dockerfile
+    container_name: ashiorid-data-prep
+    ports:
+      - "8006:8006"
+      - "9096:9096"
+    environment:
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - ENVIRONMENT=development
+    depends_on:
+      llm-proxy:
+        condition: service_started
+    volumes:
+      - ./data-prep-service/src:/app/src
+      - ./data-prep-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+      - ${SOURCE_FILES_DIR:-./sourceWorks}:/PycharmProjects/ashiorid/sourceWorks:ro
+      - ./data-prep-service/processed_output:/app/processed_output
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
