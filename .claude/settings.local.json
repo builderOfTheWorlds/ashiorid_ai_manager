@@ -35,7 +35,10 @@
       "Bash(sudo systemctl status:*)",
       "Bash(kubectl apply:*)",
       "Bash(kubectl rollout restart:*)",
-      "Bash(kubectl wait:*)"
+      "Bash(kubectl wait:*)",
+      "Bash(gh repo set-default:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
