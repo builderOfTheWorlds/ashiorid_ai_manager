@@ -17,6 +17,9 @@ from shared.logging_config import setup_logging, get_logger
 from shared.base_config import load_service_config
 from shared.common_types import HealthCheck, HealthStatus
 
+import sys
+sys.path.append('..')
+
 from src.api import routes
 from src.services.simulation import SimulationService
 from src.db.database import DatabaseManager

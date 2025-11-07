@@ -48,10 +48,12 @@ k8s_resource('traefik', port_forwards=['80:80', '8080:8080'])
 # Build Docker image for local development
 docker_build(
     'llm-proxy-service',
-    'llm-proxy-service',
+    '.',  # Build context is project root to access shared/
+    dockerfile='llm-proxy-service/Dockerfile',
     live_update=[
         sync('llm-proxy-service/src', '/app/src'),
         sync('llm-proxy-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='llm-proxy-service/requirements.txt'),
     ],
 )
@@ -71,10 +73,12 @@ k8s_resource(
 
 docker_build(
     'lore-rag-service',
-    'lore-rag-service',
+    '.',  # Build context is project root to access shared/
+    dockerfile='lore-rag-service/Dockerfile',
     live_update=[
         sync('lore-rag-service/src', '/app/src'),
         sync('lore-rag-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='lore-rag-service/requirements.txt'),
     ],
 )
@@ -93,10 +97,12 @@ k8s_resource(
 
 docker_build(
     'character-agent-service',
-    'character-agent-service',
+    '.',  # Build context is project root to access shared/
+    dockerfile='character-agent-service/Dockerfile',
     live_update=[
         sync('character-agent-service/src', '/app/src'),
         sync('character-agent-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='character-agent-service/requirements.txt'),
     ],
 )
@@ -115,10 +121,12 @@ k8s_resource(
 
 docker_build(
     'simulation-engine',
-    'simulation-engine',
+    '.',  # Build context is project root to access shared/
+    dockerfile='simulation-engine/Dockerfile',
     live_update=[
         sync('simulation-engine/src', '/app/src'),
         sync('simulation-engine/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='simulation-engine/requirements.txt'),
     ],
 )
@@ -137,10 +145,12 @@ k8s_resource(
 
 docker_build(
     'ai-manager-service',
-    'ai-manager-service',
+    '.',  # Build context is project root to access shared/
+    dockerfile='ai-manager-service/Dockerfile',
     live_update=[
         sync('ai-manager-service/src', '/app/src'),
         sync('ai-manager-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='ai-manager-service/requirements.txt'),
     ],
 )
