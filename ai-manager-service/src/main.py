@@ -20,6 +20,7 @@ from src.services.llm_client import LLMClient
 from src.services.character_client import CharacterClient
 from src.services.lore_client import LoreClient
 from src.services.simulation_client import SimulationClient
+from src import dependencies
 
 # Load configuration
 config = load_service_config("ai-manager")
@@ -52,15 +53,10 @@ SERVICE_HEALTH = Gauge(
     ["service"]
 )
 
-# Global service instances
-orchestrator_service: OrchestratorService = None
-event_generator: WorldEventGenerator = None
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan."""
-    global orchestrator_service, event_generator
 
     logger.info("Starting AI Manager Service")
 
@@ -71,26 +67,26 @@ async def lifespan(app: FastAPI):
     simulation_client = SimulationClient(config)
 
     # Initialize orchestrator
-    orchestrator_service = OrchestratorService(
+    dependencies.orchestrator_service = OrchestratorService(
         config=config,
         llm_client=llm_client,
         character_client=character_client,
         lore_client=lore_client,
         simulation_client=simulation_client,
     )
-    await orchestrator_service.initialize()
+    await dependencies.orchestrator_service.initialize()
 
     # Initialize world event generator
-    event_generator = WorldEventGenerator(
+    dependencies.event_generator = WorldEventGenerator(
         config=config,
         simulation_client=simulation_client,
         llm_client=llm_client,
     )
-    await event_generator.initialize()
+    await dependencies.event_generator.initialize()
 
     # Start event generator if enabled
     if config.get("world_events", {}).get("enabled", True):
-        event_generator.start()
+        dependencies.event_generator.start()
 
     logger.info("AI Manager Service started successfully")
 
@@ -98,8 +94,8 @@ async def lifespan(app: FastAPI):
 
     # Cleanup
     logger.info("Shutting down AI Manager Service")
-    if event_generator:
-        await event_generator.stop()
+    if dependencies.event_generator:
+        await dependencies.event_generator.stop()
 
 
 # Create FastAPI app
@@ -151,13 +147,3 @@ async def root():
             "docs": "/docs"
         }
     }
-
-
-def get_orchestrator() -> OrchestratorService:
-    """Get orchestrator service instance."""
-    return orchestrator_service
-
-
-def get_event_generator() -> WorldEventGenerator:
-    """Get event generator instance."""
-    return event_generator
