@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-prep
+  namespace: ashiorid
+  labels:
+    app: data-prep
+    component: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-prep
+  template:
+    metadata:
+      labels:
+        app: data-prep
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9096"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: data-prep
+        image: localhost:5000/data-prep-service:tilt-5ba9b3aaf518dfa4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8006
+          name: http
+          protocol: TCP
+        - containerPort: 9096
+          name: metrics
+          protocol: TCP
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8006
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+        - name: processed-output
+          mountPath: /app/processed_output
+        - name: input
+          mountPath: /app/input
+      volumes:
+      - name: config
+        configMap:
+          name: data-prep-config
+      - name: processed-output
+        emptyDir: {}
+      - name: input
+        hostPath:
+          path: /mnt/c/Users/matt/PycharmProjects/ashiorid/sourceWorks
+          type: DirectoryOrCreate

@@ -14,6 +14,10 @@ data:
       base_url: "http://ai-manager:8005"
       timeout: 30
 
+    data_prep:
+      base_url: "http://data-prep:8006"
+      timeout: 30
+
     features:
       enable_world_query: true
       enable_character_query: true

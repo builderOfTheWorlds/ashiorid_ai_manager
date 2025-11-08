@@ -101,7 +101,7 @@ class LLMClient:
         for attempt in range(self.max_retries):
             try:
                 response = await self.client.post(
-                    f"{self.llm_proxy_url}/generate",
+                    f"{self.llm_proxy_url}/chat/completions",
                     json=llm_request.model_dump(),
                 )
 

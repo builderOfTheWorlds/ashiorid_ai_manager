@@ -243,6 +243,7 @@ async def root():
             "process_batch": "/process/batch",
             "process_file": "/process/file",
             "job_status": "/jobs/{job_id}",
+            "input_files": "/input-files",
             "list_files": "/files",
             "download_file": "/files/{filename}",
             "file_metadata": "/files/{filename}/metadata",

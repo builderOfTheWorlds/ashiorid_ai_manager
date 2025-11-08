@@ -38,7 +38,19 @@
       "Bash(kubectl wait:*)",
       "Bash(gh repo set-default:*)",
       "Bash(git fetch:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(docker ps:*)",
+      "Bash(kubectl patch:*)",
+      "Bash(kubectl rollout status:*)",
+      "Bash(xargs:*)",
+      "Bash(kubectl run:*)",
+      "Bash(kubectl cp:*)",
+      "Bash(touch:*)",
+      "Bash(docker save:*)",
+      "Bash(k3s ctr images import:*)",
+      "Bash(sudo k3s ctr images import:*)"
     ],
     "deny": [],
     "ask": []

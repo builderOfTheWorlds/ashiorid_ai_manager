@@ -90,6 +90,8 @@ spec:
             - pg_isready
             - -U
             - ashiorid_user
+            - -d
+            - ashiorid
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
@@ -98,6 +100,8 @@ spec:
             - pg_isready
             - -U
             - ashiorid_user
+            - -d
+            - ashiorid
           initialDelaySeconds: 5
           periodSeconds: 5
       volumes:

@@ -264,6 +264,12 @@ class DataPrepClient:
         response.raise_for_status()
         return response.json()
 
+    def list_input_files(self) -> Dict:
+        """List all available input files ready for processing."""
+        response = self.client.get(f"{self.base_url}/input-files")
+        response.raise_for_status()
+        return response.json()
+
     def get_file_metadata(self, filename: str) -> Dict:
         """Get file metadata."""
         response = self.client.get(f"{self.base_url}/files/{filename}/metadata")
@@ -419,20 +425,47 @@ def render_data_prep_batch():
     """Render batch processing interface."""
     st.subheader("📁 Batch Processing")
 
+    # Display available input files
+    try:
+        input_files_data = st.session_state.data_prep_client.list_input_files()
+
+        if input_files_data.get("total", 0) > 0:
+            st.info(f"📂 **{input_files_data['total']} file(s) available** in `{input_files_data.get('input_directory', 'default')}`")
+
+            # Show files in an expandable section
+            with st.expander("View Available Files", expanded=False):
+                files_df_data = []
+                for file in input_files_data.get("files", []):
+                    files_df_data.append({
+                        "Filename": file["filename"],
+                        "Size (MB)": file["size_mb"],
+                    })
+
+                if files_df_data:
+                    import pandas as pd
+                    df = pd.DataFrame(files_df_data)
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.warning("⚠️ No input files found in the source directory")
+    except Exception as e:
+        st.warning(f"Could not load input files: {str(e)}")
+
+    st.divider()
+
     col1, col2 = st.columns(2)
 
     with col1:
         source_dir = st.text_input(
             "Source Directory",
-            value="/PycharmProjects/ashiorid/sourceWorks",
-            help="Directory containing .txt files to process"
+            value="",
+            help="Directory containing .txt files to process (leave empty to use default)"
         )
 
     with col2:
         output_dir = st.text_input(
             "Output Directory",
-            value="./processed_output",
-            help="Where to save processed JSONL files"
+            value="",
+            help="Where to save processed JSONL files (leave empty to use default)"
         )
 
     # Configuration preset
@@ -448,8 +481,8 @@ def render_data_prep_batch():
         try:
             with st.spinner("Starting batch job..."):
                 result = st.session_state.data_prep_client.process_batch(
-                    source_dir=source_dir,
-                    output_dir=output_dir,
+                    source_dir=source_dir if source_dir else None,
+                    output_dir=output_dir if output_dir else None,
                     config_override=DATA_PREP_PRESETS[preset]["config"]
                 )
 
