@@ -50,7 +50,8 @@
       "Bash(touch:*)",
       "Bash(docker save:*)",
       "Bash(k3s ctr images import:*)",
-      "Bash(sudo k3s ctr images import:*)"
+      "Bash(sudo k3s ctr images import:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []
