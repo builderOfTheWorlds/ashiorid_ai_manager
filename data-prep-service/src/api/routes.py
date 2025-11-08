@@ -158,6 +158,47 @@ async def get_job_status(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/input-files")
+async def list_input_files(
+    file_manager=Depends(get_file_manager),
+):
+    """
+    List all available input files ready for processing.
+
+    Returns:
+        List of input files with metadata
+    """
+    try:
+        import os
+        from pathlib import Path
+
+        files = file_manager.list_input_files()
+
+        file_list = []
+        for file_path in files:
+            path = Path(file_path)
+            stat = os.stat(file_path)
+            file_list.append({
+                "filename": path.name,
+                "path": file_path,
+                "size_mb": round(stat.st_size / (1024 * 1024), 2),
+                "size_bytes": stat.st_size,
+            })
+
+        # Sort by filename
+        file_list.sort(key=lambda x: x["filename"])
+
+        return {
+            "files": file_list,
+            "total": len(file_list),
+            "input_directory": str(file_manager.input_dir),
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to list input files: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/files", response_model=FileListResponse)
 async def list_files(
     file_manager=Depends(get_file_manager),

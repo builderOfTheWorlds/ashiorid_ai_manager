@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-prep-config
+  namespace: ashiorid
+data:
+  config.yaml: |
+    service:
+      name: data-prep-service
+      port: 8006
+      host: 0.0.0.0
+      workers: 2
+      reload: false
+
+    # Source files configuration
+    source_files:
+      input_directory: "/app/input/txt"
+      output_directory: "/app/processed_output"
+      supported_formats:
+        - txt
+      watch_for_changes: false
+
+    # Processing configuration
+    processing:
+      # Text normalization
+      normalization:
+        unicode_form: "NFKC"
+        remove_excessive_whitespace: true
+        standardize_quotes: true
+        correct_ocr_errors: true
+        remove_page_artifacts: true
+
+      # Chunking strategy
+      chunking:
+        strategy: "token_count"  # Options: token_count, chapter, scene
+        chunk_size_tokens: 2048
+        chunk_overlap_tokens: 200
+        min_chunk_size_tokens: 100
+
+      # Quality checks
+      quality:
+        check_duplicates: true
+        detect_corruption: true
+        flag_incomplete: true
+        min_content_length: 50
+
+      # LLM enhancement
+      llm_enhancement:
+        enabled: true
+        provider: "ollama"
+        model: "llama3.2"
+        batch_size: 5
+        rate_limit_delay_seconds: 0.5
+
+        features:
+          generate_summaries: true
+          extract_characters: true
+          tag_themes: true
+          detect_narrative_arc: true
+          identify_pov: true
+
+        prompt_templates:
+          summary: "Summarize this text section in 2-3 sentences, focusing on plot, worldbuilding, and character development:"
+          characters: "List all character names mentioned in this text and provide a brief 1-sentence description for each:"
+          themes: "Identify themes and tropes in this text. Choose from: magic_system, chosen_one, prophecy, worldbuilding, technology, political_intrigue, romance, combat, mystery. Return comma-separated list:"
+          narrative_arc: "Classify this text section's narrative function. Choose ONE: exposition, rising_action, climax, falling_action, resolution:"
+          pov: "Identify the point of view. Choose ONE: first_person, third_person_limited, third_person_omniscient:"
+
+    # LLM Proxy service connection
+    llm_proxy:
+      url: "http://llm-proxy:8001"
+      timeout_seconds: 30
+      max_retries: 3
+
+    # Logging
+    logging:
+      level: INFO
+      format: json
+      output: stdout
+
+    # Metrics
+    metrics:
+      enabled: true
+      port: 9096
+      path: /metrics
+
+    # Health checks
+    health_check:
+      enabled: true
+      path: /health
