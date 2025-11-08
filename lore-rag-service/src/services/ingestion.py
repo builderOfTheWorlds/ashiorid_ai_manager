@@ -12,6 +12,7 @@ import sys
 sys.path.append('../..')
 from shared.common_types import DocumentChunk
 from shared.logging_config import get_logger
+from .pdf_extractor import PDFExtractor
 
 logger = get_logger(__name__)
 
@@ -35,6 +36,14 @@ class IngestionService:
         except Exception as e:
             logger.warning(f"Failed to load tiktoken, using simple tokenizer: {e}")
             self.tokenizer = None
+
+        # Initialize PDF extractor
+        try:
+            self.pdf_extractor = PDFExtractor(config)
+            logger.info("PDF extractor initialized successfully")
+        except Exception as e:
+            logger.warning(f"PDF extractor not available: {e}")
+            self.pdf_extractor = None
 
     def _chunk_text(self, text: str, source: str) -> List[DocumentChunk]:
         """
@@ -188,4 +197,66 @@ class IngestionService:
 
         except Exception as e:
             logger.error(f"Text ingestion failed: {e}", exc_info=True)
+            raise
+
+    async def ingest_pdf(
+        self,
+        pdf_bytes: bytes,
+        source: str,
+        collection: str,
+    ) -> Dict:
+        """
+        Ingest a PDF document.
+
+        Args:
+            pdf_bytes: PDF file content as bytes
+            source: Source identifier
+            collection: Target collection
+
+        Returns:
+            Ingestion results with PDF metadata
+        """
+        try:
+            if not self.pdf_extractor:
+                raise ValueError("PDF extraction is not available (missing dependencies)")
+
+            logger.info(f"Extracting text from PDF: '{source}'")
+
+            # Extract text from PDF
+            text, pdf_metadata = self.pdf_extractor.extract_text(pdf_bytes)
+
+            if not text or len(text.strip()) == 0:
+                raise ValueError("No text could be extracted from PDF")
+
+            logger.info(
+                f"PDF text extraction successful: "
+                f"method={pdf_metadata['extraction_method']}, "
+                f"pages={pdf_metadata['page_count']}, "
+                f"confidence={pdf_metadata['confidence_score']}"
+            )
+
+            # Chunk the extracted text
+            chunks = self._chunk_text(text, source)
+
+            # Add PDF metadata to chunk metadata
+            for chunk in chunks:
+                chunk.metadata.update({
+                    "pdf_extraction_method": pdf_metadata["extraction_method"],
+                    "pdf_page_count": pdf_metadata["page_count"],
+                    "pdf_confidence": pdf_metadata["confidence_score"],
+                    "pdf_has_images": pdf_metadata["has_images"],
+                })
+
+            logger.info(f"Ingesting {len(chunks)} chunks from PDF '{source}'")
+
+            # Ingest chunks
+            result = await self.ingest(chunks, collection)
+
+            result["chunks_created"] = len(chunks)
+            result["pdf_metadata"] = pdf_metadata
+
+            return result
+
+        except Exception as e:
+            logger.error(f"PDF ingestion failed: {e}", exc_info=True)
             raise

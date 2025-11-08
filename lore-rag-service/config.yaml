@@ -58,7 +58,16 @@ ingestion:
   supported_formats:
     - txt
     - md
+    - pdf
   batch_size: 100
+
+# PDF extraction settings
+pdf_extraction:
+  ocr_enabled: true
+  ocr_dpi: 300
+  ocr_language: eng
+  min_text_length: 50
+  min_alpha_ratio: 0.6
 
 # Metrics
 metrics:

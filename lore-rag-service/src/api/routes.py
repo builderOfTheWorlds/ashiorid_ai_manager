@@ -158,7 +158,7 @@ async def ingest_file(
     ingestion_service=Depends(get_ingestion_service),
 ):
     """
-    Ingest a text file into a collection.
+    Ingest a file (text or PDF) into a collection.
 
     Args:
         file: Uploaded file
@@ -171,31 +171,67 @@ async def ingest_file(
     try:
         # Read file content
         content = await file.read()
-        text = content.decode('utf-8')
-
         source_name = source or file.filename
+
+        # Detect file type
+        filename_lower = file.filename.lower() if file.filename else ""
+        is_pdf = filename_lower.endswith('.pdf') or content[:4] == b'%PDF'
 
         logger.info(
             f"File ingestion request: file='{file.filename}', "
-            f"size={len(text)} bytes, collection='{collection}'"
+            f"size={len(content)} bytes, collection='{collection}', "
+            f"type={'PDF' if is_pdf else 'text'}"
         )
 
-        # Ingest file
-        result = await ingestion_service.ingest_text(
-            text=text,
-            source=source_name,
-            collection=collection,
+        # Ingest based on file type
+        if is_pdf:
+            # PDF file - use PDF ingestion
+            result = await ingestion_service.ingest_pdf(
+                pdf_bytes=content,
+                source=source_name,
+                collection=collection,
+            )
+
+            logger.info(f"PDF ingestion completed: {result}")
+
+            response = {
+                "status": "success",
+                "filename": file.filename,
+                "collection": collection,
+                "chunks_created": result.get("chunks_created", 0),
+            }
+
+            # Include PDF metadata if available
+            if "pdf_metadata" in result:
+                response["pdf_metadata"] = result["pdf_metadata"]
+
+            return response
+
+        else:
+            # Text file - use text ingestion
+            text = content.decode('utf-8')
+
+            result = await ingestion_service.ingest_text(
+                text=text,
+                source=source_name,
+                collection=collection,
+            )
+
+            logger.info(f"Text file ingestion completed: {result}")
+
+            return {
+                "status": "success",
+                "filename": file.filename,
+                "collection": collection,
+                "chunks_created": result.get("chunks_created", 0),
+            }
+
+    except UnicodeDecodeError:
+        logger.error(f"File encoding error: unable to decode as UTF-8")
+        raise HTTPException(
+            status_code=400,
+            detail="File encoding error: only UTF-8 text files and PDF files are supported"
         )
-
-        logger.info(f"File ingestion completed: {result}")
-
-        return {
-            "status": "success",
-            "filename": file.filename,
-            "collection": collection,
-            "chunks_created": result.get("chunks_created", 0),
-        }
-
     except Exception as e:
         logger.error(f"File ingestion failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

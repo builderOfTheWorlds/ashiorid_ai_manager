@@ -20,6 +20,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install Tesseract OCR for PDF processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy Python dependencies from builder
 COPY --from=builder /root/.local /root/.local
 COPY --from=builder /root/nltk_data /root/nltk_data
