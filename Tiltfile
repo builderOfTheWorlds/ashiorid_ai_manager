@@ -164,6 +164,30 @@ k8s_resource(
 )
 
 # =================================================================
+# Data Prep Service
+# =================================================================
+
+docker_build(
+    'data-prep-service',
+    '.',
+    dockerfile='data-prep-service/Dockerfile',
+    live_update=[
+        sync('data-prep-service/src', '/app/src'),
+        sync('data-prep-service/config.yaml', '/app/config.yaml'),
+        sync('shared', '/app/shared'),
+        run('pip install -r requirements.txt', trigger='data-prep-service/requirements.txt'),
+    ],
+)
+
+k8s_yaml(kustomize('data-prep-service/k8s/'))
+k8s_resource(
+    'data-prep',
+    port_forwards=['8006:8006', '9096:9096'],
+    resource_deps=['llm-proxy'],
+    labels=['services'],
+)
+
+# =================================================================
 # Web Frontend
 # =================================================================
 
@@ -182,7 +206,7 @@ k8s_yaml(kustomize('web-frontend/k8s/'))
 k8s_resource(
     'web-frontend',
     port_forwards='8501:8501',
-    resource_deps=['ai-manager'],
+    resource_deps=['ai-manager', 'data-prep'],
     labels=['frontend'],
 )
 
@@ -220,7 +244,7 @@ print("""
   • Character Agent:  http://localhost:8003
   • Simulation:       http://localhost:8004
   • AI Manager:       http://localhost:8005
-  • Web Frontend:     http://localhost:8501
+  • Data Prep:        http://localhost:8006
   • Web Frontend:     http://localhost:8501
 
 💾 Databases:

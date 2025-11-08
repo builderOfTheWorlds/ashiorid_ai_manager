@@ -28,6 +28,8 @@ spec:
         env:
         - name: AI_MANAGER_URL
           value: "http://ai-manager:8005"
+        - name: DATA_PREP_URL
+          value: "http://data-prep:8006"
         - name: PYTHONUNBUFFERED
           value: "1"
         volumeMounts:

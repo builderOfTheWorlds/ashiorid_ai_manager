@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  data-prep-service:
+    build:
+      context: ..
+      dockerfile: data-prep-service/Dockerfile
+    container_name: data-prep-service
+    ports:
+      - "8006:8006"
+      - "9096:9096"  # Metrics
+    environment:
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+    volumes:
+      # Mount source files directory
+      - ${SOURCE_FILES_DIR:-./sourceWorks}:/PycharmProjects/ashiorid/sourceWorks:ro
+      # Mount output directory
+      - ./processed_output:/app/processed_output
+      # Mount config for live updates
+      - ./config.yaml:/app/config.yaml:ro
+    networks:
+      - ashiorid-network
+    depends_on:
+      - llm-proxy-service
+    restart: unless-stopped
+
+networks:
+  ashiorid-network:
+    external: true
