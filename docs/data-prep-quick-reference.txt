@@ -1,0 +1,245 @@
+================================================================================
+                   DATA-PREP SERVICE - QUICK REFERENCE
+================================================================================
+
+CURRENT STATE:
+- NO dedicated data-prep-service exists
+- File processing is integrated into lore-rag-service (Port 8002)
+- Currently supports: TXT, MD files only
+- Branch: claude/add-pdf-support-011CUv7gG3KGUsgUQVA3QLUB
+
+================================================================================
+SUPPORTED FILE TYPES
+================================================================================
+
+Current:
+  - .txt (plain text)
+  - .md (markdown)
+
+NOT YET SUPPORTED:
+  - .pdf (requires PDF parser)
+  - .docx
+  - Other binary formats
+
+File Size Limit: 50 MB (configurable)
+
+================================================================================
+KEY COMPONENTS & ENTRY POINTS
+================================================================================
+
+1. FILE UPLOAD HANDLER
+   Location: lore-rag-service/src/api/routes.py (lines 153-201)
+   Function: ingest_file()
+   Input: UploadFile
+   Output: JSON status response
+   
+   LIMITATION: Only UTF-8 decoding, cannot parse PDFs
+
+2. INGESTION SERVICE
+   Location: lore-rag-service/src/services/ingestion.py
+   Classes:
+     - IngestionService: Main processing pipeline
+   
+   Key Methods:
+     - ingest_text(text, source, collection)     → Processes raw text
+     - _chunk_text(text, source)                  → Splits into chunks
+     - ingest(documents, collection)              → Stores in Qdrant
+
+3. TEXT CHUNKING
+   Strategy: Token-based chunking
+   Library: tiktoken
+   Parameters:
+     - chunk_size: 512 tokens
+     - overlap: 50 tokens
+     - min_chunk_size: 100 tokens
+
+4. EMBEDDING GENERATION
+   Location: lore-rag-service/src/services/embeddings.py
+   Service: Ollama
+   Model: nomic-embed-text (768 dimensions)
+   Batch Size: 32 texts per batch
+
+5. VECTOR STORAGE
+   Location: lore-rag-service/src/services/qdrant_client.py
+   Database: Qdrant
+   Storage Format: PointStruct with payload
+   Payload Contains:
+     - text: chunk content
+     - source: file identifier
+     - metadata: custom key-value pairs
+
+================================================================================
+PROCESSING PIPELINE
+================================================================================
+
+Upload File
+    ↓
+Detect File Type (routes.py)
+    ↓
+Parse File → Extract Text (MISSING FOR PDF)
+    ↓
+Chunk Text (token-based, 512 tokens)
+    ↓
+Generate Embeddings (Ollama API)
+    ↓
+Create Qdrant Points (PointStruct)
+    ↓
+Upsert to Qdrant Vector DB
+    ↓
+Return: {status, filename, collection, chunks_created}
+
+================================================================================
+OUTPUT FORMATS
+================================================================================
+
+INGESTION RESPONSE:
+{
+    "status": "success",
+    "filename": "document.txt",
+    "collection": "lore",
+    "chunks_created": 42,
+    "details": {
+        "documents_ingested": 42,
+        "embeddings_generated": 42,
+        "points_upserted": 42
+    }
+}
+
+STORED IN QDRANT:
+PointStruct {
+    id: "uuid-string",
+    vector: [768 floats],  # embedding
+    payload: {
+        "text": "chunk text...",
+        "source": "filename.txt",
+        "metadata": {
+            "chunk_index": 0,
+            "token_count": 512
+        }
+    }
+}
+
+SEARCH RESULT:
+{
+    "text": "chunk text...",
+    "score": 0.92,           # similarity (0-1)
+    "source": "filename.txt",
+    "metadata": {...}
+}
+
+================================================================================
+CONFIGURATION LOCATIONS
+================================================================================
+
+Main Config: lore-rag-service/config.yaml
+  ├─ service.port: 8002
+  ├─ qdrant.host: qdrant
+  ├─ ollama.model: nomic-embed-text
+  ├─ text_processing.chunk_size: 512
+  ├─ ingestion.max_file_size_mb: 50
+  └─ ingestion.supported_formats: [txt, md]
+
+Docker Compose: docker-compose.yml (lines 114-139)
+  Environment Variables:
+    - QDRANT_HOST=qdrant
+    - OLLAMA_HOST=http://host.docker.internal:11434
+    - LOG_LEVEL=INFO
+
+================================================================================
+API ENDPOINTS
+================================================================================
+
+POST   /ingest/file              ← File upload endpoint
+POST   /ingest                   ← Ingest document chunks
+POST   /search                   ← Semantic search
+GET    /collections              ← List collections
+POST   /collections/{name}       ← Create collection
+DELETE /collections/{name}       ← Delete collection
+GET    /health                   ← Health check
+GET    /metrics                  ← Prometheus metrics
+
+================================================================================
+SHARED DATA MODELS
+================================================================================
+
+File: shared/common_types.py
+
+DocumentChunk:
+  - text: str (required)
+  - source: str (required)
+  - metadata: Dict[str, Any] (optional)
+
+SemanticSearchRequest:
+  - query: str
+  - collection: str (default: "lore")
+  - limit: int (default: 5, max: 100)
+  - threshold: float (default: 0.7)
+
+SearchResult:
+  - text: str
+  - score: float
+  - source: str
+  - metadata: Dict[str, Any]
+
+================================================================================
+FOR ADDING PDF SUPPORT
+================================================================================
+
+What's Needed:
+  1. PDF parser library (PyPDF2, pdfplumber, or pypdf)
+  2. File format detection (magic numbers or MIME types)
+  3. Update ingest_file() to detect file type
+  4. Add PDF extraction logic
+  5. Update config.yaml to list "pdf" as supported
+  6. Update requirements.txt with PDF library
+
+Where to Modify:
+  - lore-rag-service/src/api/routes.py (line 174)
+  - lore-rag-service/src/services/ingestion.py (add pdf handler)
+  - lore-rag-service/config.yaml (add "pdf" format)
+  - lore-rag-service/requirements.txt (add PDF library)
+
+Optional: Create Dedicated data-prep-service
+  - Separate microservice for file preprocessing
+  - Handle multiple formats centrally
+  - Implement OCR for scanned PDFs
+  - Extract document metadata
+  
+================================================================================
+DEPENDENCIES CHAIN
+================================================================================
+
+User Browser/CLI
+    ↓
+FastAPI Routes Layer (routes.py)
+    ↓
+IngestionService (ingestion.py)
+    ↓
+┌─────────────────────┬─────────────────────┐
+│                     │                     │
+EmbeddingService      QdrantService         TextChunking
+│                     │                     │
+↓                     ↓                     ↓
+Ollama API ←─────────→ Qdrant DB ←────────── tiktoken
+(Port 11434)          (Port 6333)
+
+Also supports:
+- Redis for caching (Port 6379)
+- PostgreSQL for metadata (Port 5432)
+
+================================================================================
+PERFORMANCE CHARACTERISTICS
+================================================================================
+
+Search Latency:        ~50-200ms
+Search Throughput:     ~50 searches/sec (single replica)
+Embedding Generation:  ~100 docs/min (local Ollama)
+Vector Upload Speed:   ~1000 points/sec to Qdrant
+Text Chunking Speed:   ~10MB text/sec
+
+Embedding Dimensions:  768 (nomic-embed-text)
+Max File Size:         50 MB
+Default Chunk Size:    512 tokens
+Batch Size:            32 texts/batch
+
+================================================================================
