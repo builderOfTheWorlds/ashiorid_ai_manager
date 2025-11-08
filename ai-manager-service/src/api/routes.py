@@ -106,8 +106,17 @@ async def query_character(
             include_simulation=request.include_simulation,
         )
         return response
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        # Check if it's a 404 error from character service
+        if "404" in error_msg and "not found" in error_msg.lower():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Character '{request.character_name}' not found. Please create the character first."
+            )
+        raise HTTPException(status_code=500, detail=error_msg)
 
 
 # ============================================================================
