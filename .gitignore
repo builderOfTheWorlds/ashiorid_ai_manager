@@ -54,6 +54,96 @@ htmlcov/
 logs/
 *.log.*
 
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+.cache/
+tmp/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Tilt
+.tilt-cache/
+
+# Monitoring/Metrics
+*.prom
+
+# Backup files
+backups/*.tar.gz
+backups/*.sql
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Logs
+*.log
+logs/
+*.log.*
+
 # Tilt logs - track directory structure but ignore log files
 tilt-logs/*.log
 tilt-logs/*.log.*

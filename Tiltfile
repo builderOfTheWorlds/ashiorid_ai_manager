@@ -197,6 +197,8 @@ print("""
   • Character Agent:  http://localhost:8003
   • Simulation:       http://localhost:8004
   • AI Manager:       http://localhost:8005
+  • Web Frontend:     http://localhost:8501
+  • Web Frontend:     http://localhost:8501
 
 💾 Databases:
   • PostgreSQL:    localhost:5432
