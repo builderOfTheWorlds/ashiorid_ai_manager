@@ -1,5 +1,4 @@
 # Multi-stage build for AI Manager Service
-# Force rebuild to include dependencies.py
 FROM python:3.11-slim as builder
 
 WORKDIR /app
@@ -19,11 +18,12 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts are executable
 ENV PATH=/root/.local/bin:$PATH
 
+# Copy shared utilities first (from project root context)
+COPY shared/ /app/shared/
+
 # Copy application code
 COPY ai-manager-service/src/ /app/src/
 COPY ai-manager-service/config.yaml /app/
-# Copy shared utilities
-COPY shared/ /app/shared/
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH

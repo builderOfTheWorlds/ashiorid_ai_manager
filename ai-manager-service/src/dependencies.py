@@ -3,7 +3,7 @@
 from src.services.orchestrator import OrchestratorService
 from src.services.event_generator import WorldEventGenerator
 
-# Global service instances (set during lifespan)
+# Global service instances
 orchestrator_service: OrchestratorService = None
 event_generator: WorldEventGenerator = None
 

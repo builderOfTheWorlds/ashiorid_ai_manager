@@ -23,11 +23,12 @@ COPY --from=builder /root/.local /root/.local
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
+# Copy shared utilities first (from project root context)
+COPY shared/ /app/shared/
+
 # Copy application code
 COPY character-agent-service/src/ /app/src/
 COPY character-agent-service/config.yaml /app/
-# Copy shared utilities
-COPY shared/ /app/shared/
 # Note: alembic migrations not included in initial build
 
 # Set Python path

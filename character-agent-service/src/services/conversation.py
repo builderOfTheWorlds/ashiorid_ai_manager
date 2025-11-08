@@ -153,7 +153,7 @@ class ConversationService:
                 user_message=user_message,
                 character_response=character_response,
                 lore_sources=lore_sources,
-                metadata=metadata,
+                properties=metadata,  # Map metadata param to properties column
             )
             session.add(conversation)
             await session.commit()

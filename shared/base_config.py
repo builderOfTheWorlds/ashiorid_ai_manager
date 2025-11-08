@@ -73,25 +73,29 @@ def get_env(
             raise ValueError(f"Required environment variable not set: {key}")
         return default
 
-    # Handle Kubernetes service URL format (e.g., tcp://host:port or tcp://host:port/path)
-    # This handles cases where Kubernetes injects variables like POSTGRES_PORT=tcp://10.43.125.137:5432
-    if value_type == int and isinstance(value, str) and "://" in value:
-        try:
-            # Extract port from URL format: tcp://host:port or tcp://host:port/path
-            from urllib.parse import urlparse
-            parsed = urlparse(value)
-            if parsed.port:
-                value = str(parsed.port)
-        except Exception:
-            # If parsing fails, continue with original value and let conversion fail below
-            pass
-
     # Type conversion
     try:
         if value_type == bool:
             # Handle boolean conversion specially
             return value.lower() in ("true", "1", "yes", "on")  # type: ignore
         elif value_type == int:
+            # Handle Kubernetes service URL format (e.g., tcp://10.43.125.137:5432)
+            # Extract port if value is in URL format
+            if "://" in value:
+                # Parse URL to extract port
+                # Format: protocol://host:port or protocol://host:port/path
+                try:
+                    # Remove protocol
+                    without_protocol = value.split("://", 1)[1]
+                    # Extract host:port part (before any path)
+                    host_port = without_protocol.split("/", 1)[0]
+                    # Extract port (after last colon)
+                    if ":" in host_port:
+                        port_str = host_port.rsplit(":", 1)[1]
+                        return int(port_str)  # type: ignore
+                except (IndexError, ValueError):
+                    # If parsing fails, try direct conversion
+                    pass
             return int(value)  # type: ignore
         elif value_type == float:
             return float(value)  # type: ignore

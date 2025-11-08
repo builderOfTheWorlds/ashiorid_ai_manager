@@ -46,9 +46,10 @@ k8s_resource('traefik', port_forwards=['80:80', '8080:8080'])
 # =================================================================
 
 # Build Docker image for local development
+# Note: Build from root context to access shared directory
 docker_build(
     'llm-proxy-service',
-    '.',
+    '.',  # Build context is project root to access shared/
     dockerfile='llm-proxy-service/Dockerfile',
     live_update=[
         sync('llm-proxy-service/src', '/app/src'),
@@ -73,12 +74,11 @@ k8s_resource(
 
 docker_build(
     'lore-rag-service',
-    '.',
+    '.',  # Build context is project root to access shared/
     dockerfile='lore-rag-service/Dockerfile',
     live_update=[
         sync('lore-rag-service/src', '/app/src'),
         sync('lore-rag-service/config.yaml', '/app/config.yaml'),
-        sync('shared', '/app/shared'),
         run('pip install -r requirements.txt', trigger='lore-rag-service/requirements.txt'),
     ],
 )
@@ -97,7 +97,7 @@ k8s_resource(
 
 docker_build(
     'character-agent-service',
-    '.',
+    '.',  # Build context is project root to access shared/
     dockerfile='character-agent-service/Dockerfile',
     live_update=[
         sync('character-agent-service/src', '/app/src'),
@@ -121,7 +121,7 @@ k8s_resource(
 
 docker_build(
     'simulation-engine',
-    '.',
+    '.',  # Build context is project root to access shared/
     dockerfile='simulation-engine/Dockerfile',
     live_update=[
         sync('simulation-engine/src', '/app/src'),
@@ -145,7 +145,7 @@ k8s_resource(
 
 docker_build(
     'ai-manager-service',
-    '.',
+    '.',  # Build context is project root to access shared/
     dockerfile='ai-manager-service/Dockerfile',
     live_update=[
         sync('ai-manager-service/src', '/app/src'),
@@ -161,29 +161,6 @@ k8s_resource(
     port_forwards='8005:8005',
     resource_deps=['redis', 'llm-proxy', 'lore-rag', 'character-agent', 'simulation-engine'],
     labels=['services'],
-)
-
-# =================================================================
-# Web Frontend
-# =================================================================
-
-docker_build(
-    'web-frontend',
-    'web-frontend',
-    dockerfile='web-frontend/Dockerfile',
-    live_update=[
-        sync('web-frontend/app.py', '/app/app.py'),
-        sync('web-frontend/config.yaml', '/app/config.yaml'),
-        run('pip install -r requirements.txt', trigger='web-frontend/requirements.txt'),
-    ],
-)
-
-k8s_yaml(kustomize('web-frontend/k8s/'))
-k8s_resource(
-    'web-frontend',
-    port_forwards='8501:8501',
-    resource_deps=['ai-manager'],
-    labels=['frontend'],
 )
 
 # =================================================================
