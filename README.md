@@ -188,7 +188,7 @@ ashiorid_ai_manager/
 
 ## 🧪 Success Criteria (POC)
 
-The POC is successful when:
+The POC is successful when: 
 
 - ✅ All 6 microservices deployed to K3s
 - ✅ Can query lore database: "What would Gandalf do in this situation?"

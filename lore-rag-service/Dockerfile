@@ -27,13 +27,11 @@ COPY --from=builder /root/nltk_data /root/nltk_data
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy shared utilities first (from project root context)
-COPY shared/ /app/shared/
-
 # Copy application code
-# Note: shared utilities are mounted as volume in docker-compose
-COPY src/ /app/src/
-COPY config.yaml /app/
+COPY lore-rag-service/src/ /app/src/
+COPY lore-rag-service/config.yaml /app/
+# Copy shared utilities
+COPY shared/ /app/shared/
 
 # Set Python path
 ENV PYTHONPATH=/app:$PYTHONPATH

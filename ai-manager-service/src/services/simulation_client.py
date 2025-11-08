@@ -82,11 +82,16 @@ class SimulationClient:
         """Get recent simulation events."""
         try:
             response = await self.client.get(
-                "/simulation/events",
+                "/events",
                 params={"limit": limit},
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            # The endpoint returns {"events": [...], "total": N}
+            # Return just the events list for compatibility
+            if isinstance(result, dict) and "events" in result:
+                return result["events"]
+            return result
 
         except httpx.HTTPError as e:
             logger.error(f"Failed to get events: {e}")

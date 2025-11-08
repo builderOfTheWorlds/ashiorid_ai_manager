@@ -73,6 +73,19 @@ def get_env(
             raise ValueError(f"Required environment variable not set: {key}")
         return default
 
+    # Handle Kubernetes service URL format (e.g., tcp://host:port or tcp://host:port/path)
+    # This handles cases where Kubernetes injects variables like POSTGRES_PORT=tcp://10.43.125.137:5432
+    if value_type == int and isinstance(value, str) and "://" in value:
+        try:
+            # Extract port from URL format: tcp://host:port or tcp://host:port/path
+            from urllib.parse import urlparse
+            parsed = urlparse(value)
+            if parsed.port:
+                value = str(parsed.port)
+        except Exception:
+            # If parsing fails, continue with original value and let conversion fail below
+            pass
+
     # Type conversion
     try:
         if value_type == bool:

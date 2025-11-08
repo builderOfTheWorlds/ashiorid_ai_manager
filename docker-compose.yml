@@ -218,6 +218,49 @@ services:
       - ./shared:/app/shared
     restart: unless-stopped
 
+  data-prep:
+    build:
+      context: .
+      dockerfile: data-prep-service/Dockerfile
+    container_name: ashiorid-data-prep
+    ports:
+      - "8006:8006"
+      - "9096:9096"
+    environment:
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - ENVIRONMENT=development
+    depends_on:
+      llm-proxy:
+        condition: service_started
+    volumes:
+      - ./data-prep-service/src:/app/src
+      - ./data-prep-service/config.yaml:/app/config.yaml
+      - ./shared:/app/shared
+      - ${SOURCE_FILES_DIR:-./sourceWorks}:/PycharmProjects/ashiorid/sourceWorks:ro
+      - ./data-prep-service/processed_output:/app/processed_output
+    restart: unless-stopped
+
+  web-frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    container_name: ashiorid-web-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - AI_MANAGER_URL=http://ai-manager:8005
+      - DATA_PREP_URL=http://data-prep:8006
+    depends_on:
+      ai-manager:
+        condition: service_started
+      data-prep:
+        condition: service_started
+    volumes:
+      - ./web-frontend/app.py:/app/app.py
+      - ./web-frontend/config.yaml:/app/config.yaml
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
