@@ -115,7 +115,8 @@ python src/main.py
 
 ```bash
 # Source files directory (optional, defaults to config.yaml)
-export SOURCE_FILES_DIR=/path/to/source/files
+#export SOURCE_FILES_DIR=/path/to/source/files
+export SOURCE_FILES_DIR=/path/to/source/files="C:\Users\matt\PycharmProjects\ashiorid\sourceWorks\txt"
 
 # Log level
 export LOG_LEVEL=INFO
